@@ -29,7 +29,7 @@ python3 main.py -d 7
 #### ファイルをダウンロードせずにワンライナーで実行（例: GitHubのraw URLを使う場合）
 
 ```sh
-curl -s https://raw.githubusercontent.com/t2nagi/code-misc/calculate_git_workload/main.py | python3 -
+curl -s https://raw.githubusercontent.com/t2nagi/code-misc/refs/heads/main/codes/calculate_git_workload/main.py | python3 -
 ```
 
 > ※ `your-repo` やパスは実際のリポジトリURLに置き換えてください。
