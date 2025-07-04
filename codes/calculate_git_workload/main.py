@@ -3,13 +3,16 @@ import re
 from collections import defaultdict
 import argparse
 from datetime import datetime, timedelta
+import json
 
-def calculate_git_workload(since=None):
+def calculate_git_workload(since=None, output_type="table"):
     """
     Gitリポジトリのコミット履歴から各コミッターの作業量を算出します。
     since: 'N days ago' の形式で期間指定可能
+    output_type: "table" または "json"
     """
-    print("Gitコミット履歴から作業量を算出中...")
+    if output_type == 'table':
+        print("Gitコミット履歴から作業量を算出中...")
 
     # 各コミッターの作業量を格納する辞書
     # キー: コミッター名 (str)
@@ -81,7 +84,6 @@ def calculate_git_workload(since=None):
         return
 
     # 結果の表示
-    print("\n--- 各コミッターの作業量 ---")
     if not author_stats:
         print("コミット履歴が見つかりませんでした。")
         return
@@ -89,19 +91,36 @@ def calculate_git_workload(since=None):
     # 作業量を合計行数 (lines_added + lines_deleted) でソート
     sorted_authors = sorted(author_stats.items(), key=lambda item: item[1]['lines_added'] + item[1]['lines_deleted'], reverse=True)
 
-    print(f"{'コミッター':<30} | {'コミット数':>10} | {'追加行数':>10} | {'削除行数':>10} | {'変更ファイル数':>12} | {'合計変更行数':>12}")
-    print("-" * 100)
-
-    for author, stats in sorted_authors:
-        total_changed_lines = stats['lines_added'] + stats['lines_deleted']
-        print(f"{author:<30} | {stats['commits']:>10} | {stats['lines_added']:>10} | {stats['lines_deleted']:>10} | {stats['files_changed']:>12} | {total_changed_lines:>12}")
+    if output_type == "json":
+        # JSON形式で出力
+        result = []
+        for author, stats in sorted_authors:
+            total_changed_lines = stats['lines_added'] + stats['lines_deleted']
+            result.append({
+                "author": author,
+                "commits": stats['commits'],
+                "lines_added": stats['lines_added'],
+                "lines_deleted": stats['lines_deleted'],
+                "files_changed": stats['files_changed'],
+                "total_changed_lines": total_changed_lines
+            })
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    else:
+        # テーブル形式で出力
+        print("\n--- 各コミッターの作業量 ---")
+        print(f"{'コミッター':<30} | {'コミット数':>10} | {'追加行数':>10} | {'削除行数':>10} | {'変更ファイル数':>12} | {'合計変更行数':>12}")
+        print("-" * 100)
+        for author, stats in sorted_authors:
+            total_changed_lines = stats['lines_added'] + stats['lines_deleted']
+            print(f"{author:<30} | {stats['commits']:>10} | {stats['lines_added']:>10} | {stats['lines_deleted']:>10} | {stats['files_changed']:>12} | {total_changed_lines:>12}")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Gitリポジトリの作業量を集計します。-dで何日前まで集計するか指定できます。")
+    parser = argparse.ArgumentParser(description="Gitリポジトリの作業量を集計します。-dで何日前まで集計するか指定できます。-tで出力形式を指定できます。")
     parser.add_argument('-d', type=int, help='何日前まで集計するか (例: 7 で過去7日分)')
+    parser.add_argument('-t', type=str, choices=['table', 'json'], default='table', help='出力形式 (table または json)')
     args = parser.parse_args()
     since = None
     if args.d:
         since = f"{args.d} days ago"
-    calculate_git_workload(since=since)
+    calculate_git_workload(since=since, output_type=args.t)
 
