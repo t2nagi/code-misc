@@ -1,0 +1,44 @@
+{
+	"name": "devcontainer-template",
+	"image": "mcr.microsoft.com/devcontainers/base:noble",
+	"runArgs": [
+		"--name", "devcontainer-name" // Container name
+	],
+
+	"containerEnv": {
+		"TZ": "Asia/Tokyo" // Set timezone
+	},
+
+	"mounts": [
+		"source=dev_vscode_root,target=/home/vscode,type=volume" // optional
+	],
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+		"ghcr.io/devcontainers-extra/features/curl-apt-get:1": {}
+		// "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {} // optional, for Claude AI
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"GitHub.copilot", // optional
+				"GitHub.copilot-chat" // optional
+			]
+		}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "bash ./.devcontainer/setup-script.sh",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "vscode"
+}
