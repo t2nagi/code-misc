@@ -1,0 +1,18 @@
+services:
+  serena_mcp_server:
+    image: ghcr.io/astral-sh/uv:debian
+    container_name: serena_mcp_server
+    environment:
+      - TZ=Asia/Tokyo
+    volumes:
+      - .:${PROJECT_PATH} # コンテナ内のプロジェクトパスを指定
+    ports:
+      - 9121:9121
+    command: [
+      "uvx",
+      "--from", "git+https://github.com/oraios/serena",
+      "serena", "start-mcp-server",
+      "--project", "${PROJECT_PATH}", # コンテナ内のプロジェクトパスを指定
+      "--transport", "sse",
+      "--port", "9121",
+    ]
